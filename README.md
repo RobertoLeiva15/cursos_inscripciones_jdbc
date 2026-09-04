@@ -1,5 +1,14 @@
 # Clase 7 - Cursos e Inscripciones (JDBC con relacion N:M) — Tarea
 
+## Integrantes del grupo
+
+| Nombre completo | Carnet |
+|---|---|
+| José Roberto Leiva Salazar | 0905-25-1178 |
+| Fredy Eduardo Ruiz Durán | 0905-25-6514 |
+| Ángel Omar Cabrera Juárez | 0905-25-7760 |
+| Kervin Saul García Rodríguez | 0905-25-20221 |
+
 ## Enunciado
 
 Un estudiante puede inscribirse en varios cursos, y un curso puede tener
