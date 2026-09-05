@@ -29,7 +29,7 @@ public class InscripcionDAO {
 
     private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
     private static final String USUARIO = "root";
-    private static final String PASSWORD = "tu_password_aqui";
+    private static final String PASSWORD = "Poporopo10";
 
     /**
      * Inscribe a un estudiante en un curso. Retorna el id generado.
@@ -178,7 +178,30 @@ public class InscripcionDAO {
      *    Optional.empty().
      */
     public Optional<Double> promedioDeEstudiante(String carnet) throws SQLException {
-        // TODO: completar (ver pistas arriba, especialmente el caso NULL).
+    	
+    	   	// Se usa AVG() para que MySQL calcule el promedio directamente (ignora los NULL solo),
+        	// y se valida wasNull() por si el estudiante no tiene ninguna nota registrada.
+    	    String sql = "SELECT AVG(i.nota) AS promedio " +
+    	                 "FROM inscripciones i " +
+    	                 "JOIN estudiantes e ON i.estudiante_id = e.id " +
+    	                 "WHERE e.carnet = ?";
+
+    	    try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+    	         PreparedStatement stmt = conexion.prepareStatement(sql)) {
+
+    	        stmt.setString(1, carnet);
+
+    	        try (ResultSet resultado = stmt.executeQuery()) {
+    	            if (resultado.next()) {
+    	                double promedio = resultado.getDouble("promedio");
+    	                if (resultado.wasNull()) {
+    	                    return Optional.empty();
+    	                }
+    	                return Optional.of(promedio);
+    	            }
+    	        }
+    	    }
+
         return Optional.empty();
     }
 
@@ -205,7 +228,25 @@ public class InscripcionDAO {
      *    retorna Optional.empty() en ese caso.
      */
     public Optional<String> cursoConMasInscritos() throws SQLException {
-        // TODO: completar (ver pistas arriba).
+
+    		// Se agrupan las inscripciones por curso con GROUP BY, se cuentan con COUNT(*),
+        	// y con ORDER BY + LIMIT 1 se le pide a MySQL que ya devuelva solo el curso con mas inscritos.
+    	    String sql = "SELECT c.nombre, COUNT(*) AS total " +
+    	                 "FROM inscripciones i " +
+    	                 "JOIN cursos c ON i.curso_id = c.id " +
+    	                 "GROUP BY c.nombre " +
+    	                 "ORDER BY total DESC " +
+    	                 "LIMIT 1";
+
+    	    try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+    	         PreparedStatement stmt = conexion.prepareStatement(sql);
+    	         ResultSet resultado = stmt.executeQuery()) {
+
+    	        if (resultado.next()) {
+    	            return Optional.of(resultado.getString("nombre"));
+    	        }
+    	    }
+
         return Optional.empty();
     }
 }

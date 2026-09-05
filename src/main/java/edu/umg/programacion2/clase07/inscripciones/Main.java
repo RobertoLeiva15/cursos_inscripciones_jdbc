@@ -18,6 +18,7 @@ import java.util.Scanner;
  */
 public class Main {
 
+	
     private static final Scanner teclado = new Scanner(System.in);
     private static final EstudianteDAO estudianteDAO = new EstudianteDAO();
     private static final CursoDAO cursoDAO = new CursoDAO();
