@@ -249,4 +249,35 @@ public class InscripcionDAO {
 
         return Optional.empty();
     }
+    /**
+     * Lista los estudiantes que tienen al menos una inscripcion sin nota.
+     *
+     * DISTINCT evita que un estudiante aparezca repetido si tiene
+     * varias inscripciones cuya nota es NULL.
+     */
+    public List<Estudiante> estudiantesSinNota() throws SQLException {
+
+        List<Estudiante> resultado = new ArrayList<>();
+
+        String sql = "SELECT DISTINCT e.id, e.nombre, e.carnet " +
+                     "FROM inscripciones i " +
+                     "JOIN estudiantes e ON i.estudiante_id = e.id " +
+                     "WHERE i.nota IS NULL";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement stmt = conexion.prepareStatement(sql);
+             ResultSet fila = stmt.executeQuery()) {
+
+            while (fila.next()) {
+
+                int id = fila.getInt("id");
+                String nombre = fila.getString("nombre");
+                String carnet = fila.getString("carnet");
+
+                resultado.add(new Estudiante(id, nombre, carnet));
+            }
+        }
+
+        return resultado;
+    }
 }

@@ -54,13 +54,16 @@ public class Main {
                     cursoConMasInscritos();
                     break;
                 case 8:
+                    estudiantesSinNota();
+                    break;
+                case 9:
                     System.out.println("Hasta luego.");
                     break;
                 default:
                     System.out.println("Opcion invalida. Intenta de nuevo.");
             }
             System.out.println();
-        } while (opcion != 8);
+        } while (opcion != 9);
 
         teclado.close();
     }
@@ -74,7 +77,8 @@ public class Main {
         System.out.println("5. Ver los estudiantes de un curso (por nombre)");
         System.out.println("6. Ver el promedio de un estudiante (por carnet)");
         System.out.println("7. Ver el curso con mas inscritos");
-        System.out.println("8. Salir");
+        System.out.println("8. Ver estudiantes sin nota");
+        System.out.println("9. Salir");
         System.out.print("Elige una opcion: ");
     }
 
@@ -199,6 +203,23 @@ public class Main {
             }
         } catch (SQLException e) {
             System.err.println("Error al calcular el curso con mas inscritos: " + e.getMessage());
+        }
+    }
+    private static void estudiantesSinNota() {
+        try {
+            List<Estudiante> estudiantes = inscripcionDAO.estudiantesSinNota();
+
+            if (estudiantes.isEmpty()) {
+                System.out.println("No hay estudiantes sin nota.");
+                return;
+            }
+
+            System.out.println("-- Estudiantes sin nota --");
+            for (Estudiante estudiante : estudiantes) {
+                System.out.println(estudiante);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar estudiantes sin nota: " + e.getMessage());
         }
     }
 
