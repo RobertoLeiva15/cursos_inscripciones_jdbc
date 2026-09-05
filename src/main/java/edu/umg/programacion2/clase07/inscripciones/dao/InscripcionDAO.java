@@ -1,17 +1,18 @@
 package edu.umg.programacion2.clase07.inscripciones.dao;
 
-import edu.umg.programacion2.clase07.inscripciones.modelo.Curso;
-import edu.umg.programacion2.clase07.inscripciones.modelo.Estudiante;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import edu.umg.programacion2.clase07.inscripciones.modelo.Curso;
+import edu.umg.programacion2.clase07.inscripciones.modelo.Estudiante;
 
 /**
  * TAREA: este es el DAO que tienes que construir. Resuelve la relacion
@@ -27,9 +28,9 @@ import java.util.Optional;
  */
 public class InscripcionDAO {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
-    private static final String USUARIO = "root";
-    private static final String PASSWORD = "Poporopo10";
+	private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
+	private static final String USUARIO = "root";
+	private static final String PASSWORD = "Poporopo10";
 
     /**
      * Inscribe a un estudiante en un curso. Retorna el id generado.
@@ -52,9 +53,30 @@ public class InscripcionDAO {
      *    vez de dejar que el error se propague sin explicacion.
      */
     public int inscribir(int estudianteId, int cursoId) throws SQLException {
-        // TODO: completar (ver pistas arriba). Recuerda el catch especifico
-        // para inscripciones duplicadas antes del catch general.
-        return -1;
+        String sql = "INSERT INTO inscripciones (estudiante_id, curso_id) VALUES (?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, estudianteId);
+            ps.setInt(2, cursoId);
+
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+            return -1;
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            return -1;
+
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 
     /**
@@ -71,10 +93,20 @@ public class InscripcionDAO {
      *    EstudianteDAO.actualizarNombre en la Clase 5).
      */
     public boolean registrarNota(int estudianteId, int cursoId, double nota) throws SQLException {
-        // TODO: completar.
-        return false;
-    }
+        String sql = "UPDATE inscripciones SET nota = ? WHERE estudiante_id = ? AND curso_id = ?";
 
+        try (Connection conn = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setDouble(1, nota);
+            ps.setInt(2, estudianteId);
+            ps.setInt(3, cursoId);
+
+            int filasAfectadas = ps.executeUpdate();
+
+            return filasAfectadas > 0;
+        }
+    }
     /**
      * Lista los cursos en los que esta inscrito un estudiante, dado su
      * carnet.
